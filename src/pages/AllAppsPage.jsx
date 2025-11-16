@@ -12,11 +12,12 @@ const AllAppsPage = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [sort, setSort] = useState("size");
+  const [search, setSearch] = useState("");
   const [order, setOrder] = useState("");
   const limit = 10;
 
   useEffect(() => {
-    fetch(`http://localhost:5000/apps?limit=${limit}&skip=${(currentPage - 1) * limit}&sort=${sort}&order=${order}`)
+    fetch(`http://localhost:5000/apps?limit=${limit}&skip=${(currentPage - 1) * limit}&sort=${sort}&order=${order}&search=${search}`)
     .then((res) => res.json())
     .then((data) => {
       setApps(data.apps);
@@ -26,7 +27,7 @@ const AllAppsPage = () => {
       setTotalPages(pages);
     });
 
-  }, [currentPage, order, sort]);
+  }, [currentPage, order, sort, search]);
 
   const handleSelect = (e) => {
     const value = e.target.value;
@@ -34,6 +35,11 @@ const AllAppsPage = () => {
     const sortText = e.target.value;
     setSort(sortText.split("-")[0]);
     setOrder(sortText.split("-")[1]);
+  };
+
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+    console.log(e.target.value);
   };
 
   return (
@@ -75,7 +81,7 @@ const AllAppsPage = () => {
                 <path d="m21 21-4.3-4.3"></path>
               </g>
             </svg>
-            <input type="search" className="" placeholder="Search Apps" />
+            <input onChange={handleSearch} type="search" className="" placeholder="Search Apps" />
           </label>
         </form>
 
