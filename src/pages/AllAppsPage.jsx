@@ -7,15 +7,16 @@ import { useEffect, useState } from "react";
 const AllAppsPage = () => {
   // const apps = useLoaderData();
 
-
   const [apps, setApps] = useState([]);
   const [totalApps, setTotalApps] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sort, setSort] = useState("size");
+  const [order, setOrder] = useState("");
   const limit = 10;
 
   useEffect(() => {
-    fetch(`http://localhost:5000/apps?limit=${limit}&skip=${currentPage * limit}`)
+    fetch(`http://localhost:5000/apps?limit=${limit}&skip=${(currentPage - 1) * limit}&sort=${sort}&order=${order}`)
     .then((res) => res.json())
     .then((data) => {
       setApps(data.apps);
@@ -25,7 +26,16 @@ const AllAppsPage = () => {
       setTotalPages(pages);
     });
 
-  }, []);
+  }, [currentPage, order, sort]);
+
+  const handleSelect = (e) => {
+    const value = e.target.value;
+    console.log(value);
+    const sortText = e.target.value;
+    setSort(sortText.split("-")[0]);
+    setOrder(sortText.split("-")[1]);
+  };
+
   return (
     <div>
       <title>All Apps | Hero Apps</title>
@@ -70,9 +80,9 @@ const AllAppsPage = () => {
         </form>
 
         <div className="">
-          <select className="select bg-white">
+          <select onChange={handleSelect} className="select bg-white">
             <option selected disabled={true}>
-              Sort by <span className="text-xs">R / S / D</span>
+              Sort by
             </option>
             <option value={"rating-desc"}>Ratings : High - Low</option>
             <option value={"rating-asc"}>Ratings : Low - High</option>
@@ -101,13 +111,23 @@ const AllAppsPage = () => {
       </>
 
       {/* Pagination */}
-      <div className="w-11/12 mx-auto flex flex-wrap justify-center py-10 gap-4">
-        <div className="btn-group">
+      <div className="w-11/12 mx-auto py-10">
+        <div className="btn-group flex flex-wrap justify-center gap-3">
+          {
+            currentPage > 1 && (
+              <button onClick={() => setCurrentPage(currentPage - 1)} className="btn btn-primary cursor-pointer">Prev</button>
+            )
+          }
           {[...Array(totalPages).keys()].map((num) => (
-            <button key={num} className="btn btn-outline btn-secondary">
+            <button onClick={() => setCurrentPage(num + 1)} key={num} className={`btn btn-outline btn-primary ${currentPage === num + 1 ? "btn-active" : ""}`}>
               {num + 1}
             </button>
           ))}
+          {
+            currentPage < totalPages && (
+              <button onClick={() => setCurrentPage(currentPage + 1)} className="btn btn-primary cursor-pointer">Next</button>
+            )
+          }
         </div>
       </div>
     </div>
